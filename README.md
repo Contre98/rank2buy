@@ -39,3 +39,21 @@ re-ranks instantly. **Reset** puts every weight back to 1.
 - Mark items bought (and show/hide them)
 - Export the ranked list as plain text to the clipboard
 - Works offline, adapts to your system's light/dark theme
+
+## Design
+
+The interface follows the same design system as
+[Prorrata/SplitChuni](https://prorrata.vercel.app): a monochrome true-neutral
+palette (canvas `#f5f5f5`, surface white, ink `#0a0a0a`), Inter for text and
+JetBrains Mono for the small uppercase labels, generously rounded cards that use
+a 1px ring rather than a border, 44px controls, and `cubic-bezier(.22,1,.36,1)`
+easing.
+
+Two consequences worth knowing:
+
+- **Light only.** Like the original, it commits to a light theme rather than
+  following the system setting.
+- **No state depends on colour.** The one chromatic token is a red reserved for
+  destructive actions. Cost — the factor that argues *against* a purchase — is
+  marked with a hatched track and chip instead of a colour, so the meaning
+  survives greyscale and colour-blindness.

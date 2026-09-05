@@ -2,190 +2,522 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f5f5">
+<meta name="color-scheme" content="light">
 <title>Rank2Buy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500;600&display=swap">
 <style>
-  :root {
-    --bg: #f6f7f9;
-    --surface: #ffffff;
-    --surface-2: #f0f2f5;
-    --border: #dfe3e8;
-    --text: #16191d;
-    --muted: #666e7a;
-    --accent: #3b6ef5;
-    --accent-soft: #e7edfe;
-    --good: #16915c;
-    --warn: #d97706;
-    --danger: #d3452f;
-    --radius: 10px;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #14171b;
-      --surface: #1c2026;
-      --surface-2: #23282f;
-      --border: #2f353d;
-      --text: #e9ecef;
-      --muted: #98a1ad;
-      --accent: #6f95ff;
-      --accent-soft: #22304f;
-      --good: #3fbf88;
-      --warn: #e6a23c;
-      --danger: #ef6b53;
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #14171b;
-    --surface: #1c2026;
-    --surface-2: #23282f;
-    --border: #2f353d;
-    --text: #e9ecef;
-    --muted: #98a1ad;
-    --accent: #6f95ff;
-    --accent-soft: #22304f;
-    --good: #3fbf88;
-    --warn: #e6a23c;
-    --danger: #ef6b53;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  }
-  .wrap { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
-  header { margin-bottom: 20px; }
-  h1 { font-size: 24px; margin: 0 0 4px; letter-spacing: -0.01em; }
-  .sub { color: var(--muted); font-size: 14px; margin: 0; }
+/* ==========================================================================
+   Rank2Buy — monochrome design tokens, after SplitChuni.
+   Every colour is a true neutral. The one chromatic token is `danger`, kept
+   for destructive actions only, so no state depends on hue. Where something
+   needs to read as "counts against" it uses pattern instead — see `.hatch`.
+   ========================================================================== */
+:root {
+  color-scheme: light;
 
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-    margin-bottom: 16px;
-  }
-  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
-  input[type=text], input[type=number] {
-    width: 100%;
-    padding: 9px 10px;
-    font: inherit;
-    color: var(--text);
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-  }
-  input:focus-visible, button:focus-visible, input[type=range]:focus-visible,
-  summary:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-  .row { display: flex; gap: 12px; flex-wrap: wrap; }
-  .row > * { flex: 1 1 160px; min-width: 0; }
+  /* -- palette: true-neutral ramp ---------------------------------------- */
+  --mono-0: #ffffff;
+  --mono-50: #fafafa;
+  --mono-100: #f5f5f5;
+  --mono-150: #ededed;
+  --mono-200: #e5e5e5;
+  --mono-300: #d4d4d4;
+  --mono-400: #a3a3a3;
+  --mono-500: #737373;
+  --mono-600: #525252;
+  --mono-700: #404040;
+  --mono-800: #262626;
+  --mono-900: #171717;
+  --mono-950: #0a0a0a;
 
-  .sliders { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-top: 14px; }
-  .slider .top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-  .slider .val { font-variant-numeric: tabular-nums; font-weight: 600; font-size: 13px; color: var(--text); }
-  .slider.inverse .val { color: var(--warn); }
-  input[type=range] { width: 100%; accent-color: var(--accent); margin: 2px 0 0; }
-  .slider.inverse input[type=range] { accent-color: var(--warn); }
-  .hint { font-size: 11px; color: var(--muted); }
+  /* -- semantic surfaces -------------------------------------------------- */
+  --canvas: #f5f5f5;
+  --surface: #ffffff;
+  --surface-muted: #fafafa;
+  --surface-sunken: #f0f0f0;
+  --surface-inverse: #0a0a0a;
 
-  button {
-    font: inherit;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--surface-2);
-    color: var(--text);
-    padding: 9px 14px;
-    cursor: pointer;
-  }
-  button:hover { border-color: var(--accent); }
-  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
-  button.icon { padding: 4px 8px; font-size: 12px; color: var(--muted); }
-  button.icon:hover { color: var(--danger); }
+  /* -- semantic content --------------------------------------------------- */
+  --ink: #0a0a0a;
+  --ink-muted: #525252;
+  --ink-subtle: #737373;
+  --ink-faint: #a3a3a3;
+  --ink-inverse: #ffffff;
 
-  .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
-  .toolbar .spacer { flex: 1; }
-  .count { color: var(--muted); font-size: 13px; }
+  /* -- semantic borders --------------------------------------------------- */
+  --line: #e5e5e5;
+  --line-strong: #d4d4d4;
 
-  ol.items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-  .item { display: flex; gap: 14px; align-items: flex-start; }
-  .item.bought { opacity: 0.5; }
-  .item.bought .name { text-decoration: line-through; }
-  .rank {
-    flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%;
-    background: var(--accent-soft); color: var(--accent);
-    display: grid; place-items: center; font-weight: 700; font-size: 14px;
+  /* -- the one chromatic accent ------------------------------------------ */
+  --danger: #b3261e;
+  --danger-surface: #fdf2f1;
+
+  /* -- radii: generously rounded ----------------------------------------- */
+  --radius-xs: 0.5rem;
+  --radius-sm: 0.625rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.125rem;
+  --radius-xl: 1.5rem;
+
+  /* -- elevation ---------------------------------------------------------- */
+  --shadow-xs: 0 1px 2px rgb(10 10 10 / 0.04);
+  --shadow-sm: 0 1px 2px rgb(10 10 10 / 0.04), 0 1px 3px rgb(10 10 10 / 0.06);
+  --shadow-md: 0 2px 4px rgb(10 10 10 / 0.04), 0 6px 16px -6px rgb(10 10 10 / 0.1);
+
+  /* -- type --------------------------------------------------------------- */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* -- motion ------------------------------------------------------------- */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* -- shell -------------------------------------------------------------- */
+  --gutter: 1rem;
+}
+@media (width >= 48rem) { :root { --gutter: 1.75rem; } }
+
+* { box-sizing: border-box; border-color: var(--line); }
+
+html { -webkit-text-size-adjust: 100%; overflow-x: clip; }
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background-color: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.55;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+p { margin: 0; text-wrap: pretty; }
+
+button, input { font: inherit; color: inherit; }
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button { appearance: none; margin: 0; }
+input[type='number'] { -moz-appearance: textfield; }
+
+/* A single, unmistakable focus ring everywhere. */
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+::selection { background: var(--ink); color: var(--ink-inverse); }
+
+/* `.empty` is a flex column, which would otherwise outrank the attribute. */
+[hidden] { display: none !important; }
+
+/* Numerals line up in every figure, badge and row. */
+.tnum { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
+
+/* ==========================================================================
+   Shell
+   ========================================================================== */
+
+.workspace {
+  width: 100%;
+  max-width: 52rem;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  padding-block: 2rem 4rem;
+}
+
+.page-head { display: flex; flex-direction: column; gap: 0.375rem; margin-bottom: 1.5rem; }
+.page-head p { font-size: 0.875rem; color: var(--ink-subtle); }
+
+/* Small all-caps label that opens a group of related controls. */
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-subtle);
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   Card — the app's one container surface
+   ========================================================================== */
+
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 0 0 1px var(--line), var(--shadow-xs);
+  padding: 1.25rem;
+}
+.stack { display: flex; flex-direction: column; gap: 0.75rem; }
+.stack-lg { display: flex; flex-direction: column; gap: 1rem; }
+
+/* ==========================================================================
+   Controls
+   ========================================================================== */
+
+.field { display: flex; flex-direction: column; gap: 0.5rem; }
+
+input[type=text], input[type=number] {
+  width: 100%;
+  height: 2.75rem;
+  padding-inline: 0.875rem;
+  font-size: 0.9375rem;
+  background: var(--surface);
+  color: var(--ink);
+  border: 0;
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 0 1px var(--line);
+  transition: box-shadow 0.2s var(--ease-out-quint);
+}
+input[type=text]:hover, input[type=number]:hover { box-shadow: inset 0 0 0 1px var(--line-strong); }
+input[type=text]:focus-visible, input[type=number]:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+input::placeholder { color: var(--ink-subtle); }
+input[type=number] { font-variant-numeric: tabular-nums; }
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  user-select: none;
+  height: 2.75rem;
+  padding-inline: 1rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--line);
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease-out-quint),
+              box-shadow 0.2s var(--ease-out-quint),
+              color 0.2s var(--ease-out-quint),
+              scale 0.2s var(--ease-out-quint);
+}
+.btn:hover { background: var(--surface-muted); box-shadow: inset 0 0 0 1px var(--line-strong); }
+@media (prefers-reduced-motion: no-preference) { .btn:active { scale: 0.96; } }
+
+.btn-primary {
+  background: var(--ink);
+  color: var(--ink-inverse);
+  box-shadow: var(--shadow-sm);
+}
+.btn-primary:hover { background: var(--mono-800); box-shadow: var(--shadow-md); }
+
+.btn-ghost { background: transparent; color: var(--ink-muted); box-shadow: none; }
+.btn-ghost:hover { background: var(--surface-sunken); color: var(--ink); box-shadow: none; }
+
+.btn-danger:hover { background: var(--danger-surface); color: var(--danger); box-shadow: inset 0 0 0 1px rgb(179 38 30 / 0.3); }
+
+.btn-sm { height: 2.25rem; padding-inline: 0.75rem; font-size: 0.8125rem; border-radius: var(--radius-sm); }
+.btn-xs {
+  height: 1.75rem; padding-inline: 0.625rem;
+  font-family: var(--font-mono); font-size: 0.6875rem; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  border-radius: 999px;
+}
+
+/* ==========================================================================
+   Badge
+   ========================================================================== */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 1.375rem;
+  padding-inline: 0.5rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: var(--surface-sunken);
+  color: var(--ink-muted);
+}
+.badge-solid { background: var(--ink); color: var(--ink-inverse); }
+
+/* The factor that argues against buying carries a hatch, not a colour. */
+.badge-inverse::before {
+  content: '';
+  width: 3px;
+  height: 0.75rem;
+  border-radius: 1px;
+  background-image: repeating-linear-gradient(-45deg, var(--ink) 0 2px, var(--mono-400) 2px 4px);
+}
+
+/* ==========================================================================
+   Range sliders — 8px track, 24px thumb, fill driven by --fill
+   ========================================================================== */
+
+.slider { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; }
+.slider-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.slider-val {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.slider-hint { font-size: 0.75rem; line-height: 1.4; color: var(--ink-subtle); text-wrap: pretty; }
+
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 1.5rem;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+input[type=range]:focus { outline: none; }
+
+/* The filled portion is one background layer sized by --fill; the rest of the
+   track is the element's own background colour. A solid fill for the factors
+   that argue for buying, a hatch for the one that argues against. */
+.range-track {
+  height: 0.5rem;
+  border-radius: 999px;
+  background-color: var(--surface-sunken);
+  background-repeat: no-repeat;
+  background-size: var(--fill, 50%) 100%;
+  background-image: linear-gradient(var(--ink), var(--ink));
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.slider-inverse .range-track {
+  background-image: repeating-linear-gradient(-45deg, var(--ink) 0 4px, var(--mono-700) 4px 8px);
+}
+.range-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: 0 0 0 1px var(--line-strong), var(--shadow-md);
+  transition: scale 0.15s var(--ease-out-quint), box-shadow 0.15s var(--ease-out-quint);
+}
+input[type=range]::-webkit-slider-runnable-track { height: 0.5rem; border-radius: 999px;
+  background-color: var(--surface-sunken); background-repeat: no-repeat;
+  background-size: var(--fill, 50%) 100%;
+  background-image: linear-gradient(var(--ink), var(--ink));
+  box-shadow: inset 0 0 0 1px var(--line); }
+.slider-inverse input[type=range]::-webkit-slider-runnable-track {
+  background-image: repeating-linear-gradient(-45deg, var(--ink) 0 4px, var(--mono-700) 4px 8px); }
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 1.5rem; height: 1.5rem; border: 0; border-radius: 999px;
+  background: var(--surface);
+  box-shadow: 0 0 0 1px var(--line-strong), var(--shadow-md);
+  margin-top: -0.5rem;
+  transition: scale 0.15s var(--ease-out-quint), box-shadow 0.15s var(--ease-out-quint); }
+input[type=range]::-moz-range-track { height: 0.5rem; border-radius: 999px;
+  background-color: var(--surface-sunken); background-repeat: no-repeat;
+  background-size: var(--fill, 50%) 100%;
+  background-image: linear-gradient(var(--ink), var(--ink));
+  box-shadow: inset 0 0 0 1px var(--line); }
+.slider-inverse input[type=range]::-moz-range-track {
+  background-image: repeating-linear-gradient(-45deg, var(--ink) 0 4px, var(--mono-700) 4px 8px); }
+input[type=range]::-moz-range-thumb {
+  width: 1.5rem; height: 1.5rem; border: 0; border-radius: 999px;
+  background: var(--surface);
+  box-shadow: 0 0 0 1px var(--line-strong), var(--shadow-md);
+  transition: scale 0.15s var(--ease-out-quint), box-shadow 0.15s var(--ease-out-quint); }
+
+@media (prefers-reduced-motion: no-preference) {
+  input[type=range]:hover::-webkit-slider-thumb { scale: 1.1; }
+  input[type=range]:active::-webkit-slider-thumb { scale: 0.96; }
+  input[type=range]:hover::-moz-range-thumb { scale: 1.1; }
+  input[type=range]:active::-moz-range-thumb { scale: 0.96; }
+}
+input[type=range]:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink); }
+input[type=range]:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--ink); }
+
+/* ==========================================================================
+   Add form / weights
+   ========================================================================== */
+
+.name-row { display: grid; grid-template-columns: 1fr; gap: 0.75rem; }
+@media (width >= 30rem) { .name-row { grid-template-columns: 2fr 1fr; } }
+
+.factor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 1rem 1.25rem; }
+.weight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 1rem 1.25rem; }
+
+.toolbar { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-block: 1.25rem 0.75rem; }
+.toolbar .spacer { flex: 1 1 auto; }
+.count { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.04em; color: var(--ink-subtle); }
+
+details > summary { cursor: pointer; list-style: none; user-select: none; }
+details > summary::-webkit-details-marker { display: none; }
+.disclosure { display: inline-flex; align-items: center; gap: 0.5rem; }
+.disclosure::before {
+  content: '';
+  width: 0.375rem; height: 0.375rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  rotate: -45deg;
+  transition: rotate 0.2s var(--ease-out-quint);
+}
+details[open] > summary .disclosure::before { rotate: 45deg; }
+
+/* ==========================================================================
+   List
+   ========================================================================== */
+
+.items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+
+.item { display: flex; gap: 0.875rem; align-items: flex-start; }
+.item-bought { opacity: 0.55; }
+.item-bought .item-name { text-decoration: line-through; text-decoration-color: var(--ink-faint); }
+
+.rank {
+  flex: 0 0 auto;
+  display: grid; place-items: center;
+  width: 1.75rem; height: 1.75rem;
+  margin-top: 0.125rem;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--surface-sunken);
+  color: var(--ink-muted);
+}
+/* The top pick takes the inverse treatment the hero figure always has. */
+.rank-lead { background: var(--surface-inverse); color: var(--ink-inverse); }
+
+.item-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.625rem; }
+.item-head { display: flex; align-items: baseline; gap: 0.625rem; flex-wrap: wrap; }
+.item-name { font-size: 0.9375rem; font-weight: 600; letter-spacing: -0.01em; word-break: break-word; }
+.item-price {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8125rem;
+  color: var(--ink-subtle);
+}
+.item-score {
+  margin-left: auto;
+  display: inline-flex; align-items: baseline; gap: 0.125rem;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.item-score .of { font-family: var(--font-mono); font-size: 0.6875rem; font-weight: 500; color: var(--ink-faint); }
+
+/* Meter: the fill is full width and slid into place, never resized. */
+.meter {
+  position: relative;
+  height: 0.5rem;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-sunken);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.meter-fill { height: 100%; width: 100%; border-radius: 999px; background: var(--ink); }
+.meter-animate { transition: translate 0.7s var(--ease-out-quint); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+.item-actions { display: flex; flex-direction: column; gap: 0.375rem; flex: 0 0 auto; }
+
+.empty {
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+.empty p { font-size: 0.875rem; color: var(--ink-subtle); max-width: 26rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
-  .body { flex: 1; min-width: 0; }
-  .head { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
-  .name { font-weight: 600; word-break: break-word; }
-  .price { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
-  .score { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .bar { height: 5px; border-radius: 3px; background: var(--surface-2); margin: 8px 0; overflow: hidden; }
-  .bar span { display: block; height: 100%; background: var(--accent); }
-  .actions { display: flex; gap: 6px; }
-  .summary-line { display: inline-flex; flex-wrap: wrap; gap: 4px 8px; }
-  .summary-line .inv { color: var(--warn); }
-  details.tune summary {
-    cursor: pointer; font-size: 12px; color: var(--muted);
-    list-style: none; user-select: none;
-  }
-  details.tune summary::-webkit-details-marker { display: none; }
-  details.tune summary::before { content: "▸ "; }
-  details.tune[open] summary::before { content: "▾ "; }
-  .empty { text-align: center; color: var(--muted); padding: 28px 12px; }
-  .weights { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
+<div class="workspace">
+  <header class="page-head">
+    <span class="label">Shopping list</span>
     <h1>Rank2Buy</h1>
-    <p class="sub">List what you want to buy, score each on urgency, need, impact, want and cost, and see what to buy first.</p>
+    <p>Score everything you want to buy on urgency, need, impact, want and cost — the list orders itself.</p>
   </header>
 
-  <form class="card" id="add-form">
-    <div class="row">
-      <div style="flex: 2 1 260px;">
-        <label for="name">What do you want to buy?</label>
-        <input type="text" id="name" placeholder="e.g. Standing desk" autocomplete="off" required>
+  <form class="card stack-lg" id="add-form">
+    <span class="label">New item</span>
+
+    <div class="name-row">
+      <div class="field">
+        <label class="label" for="name">What</label>
+        <input type="text" id="name" placeholder="Standing desk" autocomplete="off" required>
       </div>
-      <div>
-        <label for="price">Price (optional)</label>
+      <div class="field">
+        <label class="label" for="price">Price — optional</label>
         <input type="number" id="price" placeholder="0" min="0" step="0.01">
       </div>
     </div>
 
-    <div class="sliders" id="add-sliders"></div>
+    <div class="factor-grid" id="add-sliders"></div>
 
-    <div style="margin-top: 14px;">
-      <button type="submit" class="primary">Add to list</button>
+    <div>
+      <button type="submit" class="btn btn-primary">Add to list</button>
     </div>
   </form>
 
   <div class="toolbar">
     <span class="count" id="count"></span>
     <span class="spacer"></span>
-    <button type="button" id="toggle-bought">Show bought</button>
-    <button type="button" id="export">Export</button>
-    <button type="button" id="clear">Clear all</button>
+    <button type="button" class="btn btn-sm" id="toggle-bought">Show bought</button>
+    <button type="button" class="btn btn-sm" id="export">Export</button>
+    <button type="button" class="btn btn-sm btn-danger" id="clear">Clear all</button>
   </div>
 
-  <details class="card tune" id="weights-box">
-    <summary>Weighting — how much each factor counts</summary>
-    <div class="weights" id="weight-sliders" style="margin-top: 12px;"></div>
-    <p class="hint" style="margin-bottom: 0;">
-      Scores are a weighted average out of 10, so changing weights re-ranks the list.
-      Cost counts in reverse — cheap pushes an item up.
-      <button type="button" id="reset-weights" style="padding: 2px 8px; font-size: 11px; margin-left: 6px;">Reset</button>
+  <details class="card stack-lg" id="weights-box">
+    <summary><span class="label disclosure">Weighting</span></summary>
+    <div class="weight-grid" id="weight-sliders"></div>
+    <p class="slider-hint">
+      Scores are a weighted average out of 10, so changing a weight re-ranks the list.
+      Cost runs in reverse — cheap pushes an item up, which is why its track is hatched.
     </p>
+    <div><button type="button" class="btn btn-xs" id="reset-weights">Reset weights</button></div>
   </details>
 
   <ol class="items" id="list"></ol>
-  <p class="empty" id="empty">Nothing on the list yet. Add the first thing above.</p>
+
+  <div class="empty" id="empty">
+    <span class="label">Nothing yet</span>
+    <p>Add the first thing you are thinking of buying and it will show up here, ranked.</p>
+  </div>
 </div>
 
 <script>
@@ -195,18 +527,20 @@
   var STORE = "rank2buy.v1";
 
   // `inverse: true` means a high score argues against buying, so it enters the
-  // ranking flipped (a 10 counts as a 1).
+  // ranking flipped (a 10 counts as a 1) and its track is hatched rather than
+  // coloured — the palette is monochrome, so pattern carries the state.
   var FACTORS = [
     { key: "urgency", label: "Urgency", hint: "How soon do I need it?" },
     { key: "need",    label: "Need",    hint: "Necessity vs. nice-to-have." },
     { key: "impact",  label: "Impact",  hint: "How much will it change things?" },
     { key: "want",    label: "Want",    hint: "How much do I just want it?" },
-    { key: "cost",    label: "Cost",    hint: "1 = cheap, 10 = expensive. Counts against.", inverse: true }
+    { key: "cost",    label: "Cost",    hint: "1 cheap, 10 expensive. Counts against.", inverse: true }
   ];
   var MAX = 10;
   var DEFAULT = 5;
 
   var state = load();
+  var firstPaint = true;
 
   function defaultWeights() {
     var w = {};
@@ -285,28 +619,37 @@
     return node;
   }
 
-  /* Builds one labelled 1-10 slider. `onInput` gets the new number. */
+  /* One labelled 1-10 slider. `onInput` gets the new number. */
   function buildSlider(factor, value, ariaSuffix, onInput) {
-    var wrap = el("div", "slider" + (factor.inverse ? " inverse" : ""));
-    var top = el("div", "top");
-    var label = el("label", null, factor.label);
-    var out = el("span", "val", String(value));
-    top.append(label, out);
+    var wrap = el("div", "slider" + (factor.inverse ? " slider-inverse" : ""));
+
+    var top = el("div", "slider-top");
+    top.append(el("span", "label", factor.label), el("span", "slider-val", String(value)));
+    var out = top.lastChild;
 
     var input = el("input");
     input.type = "range";
+    input.className = "range-track range-thumb";
     input.min = "1";
     input.max = String(MAX);
     input.value = String(value);
     input.setAttribute("aria-label", factor.label + (ariaSuffix ? " for " + ariaSuffix : ""));
+
+    // The track's filled portion is a background layer sized by this variable.
+    function paint() {
+      input.style.setProperty("--fill", ((input.value - 1) / (MAX - 1)) * 100 + "%");
+    }
+    paint();
+
     input.addEventListener("input", function () {
       out.textContent = input.value;
+      paint();
       onInput(Number(input.value));
     });
 
     wrap.append(top, input);
-    if (factor.hint) wrap.append(el("div", "hint", factor.hint));
-    return { wrap: wrap, input: input, out: out };
+    if (factor.hint) wrap.append(el("p", "slider-hint", factor.hint));
+    return { wrap: wrap, input: input, out: out, paint: paint };
   }
 
   // --- Add form -------------------------------------------------------------
@@ -324,9 +667,11 @@
 
   function resetDraft() {
     FACTORS.forEach(function (f) {
+      var s = draftSliders[f.key];
       draft[f.key] = DEFAULT;
-      draftSliders[f.key].input.value = String(DEFAULT);
-      draftSliders[f.key].out.textContent = String(DEFAULT);
+      s.input.value = String(DEFAULT);
+      s.out.textContent = String(DEFAULT);
+      s.paint();
     });
   }
 
@@ -336,36 +681,44 @@
   var weightBox = document.getElementById("weight-sliders");
 
   FACTORS.forEach(function (f) {
-    var wrap = el("div", "slider" + (f.inverse ? " inverse" : ""));
-    var top = el("div", "top");
-    top.append(el("label", null, f.label + " weight"));
-    var out = el("span", "val", Number(state.weights[f.key]).toFixed(1));
-    top.append(out);
+    var wrap = el("div", "slider" + (f.inverse ? " slider-inverse" : ""));
+
+    var top = el("div", "slider-top");
+    top.append(el("span", "label", f.label), el("span", "slider-val", Number(state.weights[f.key]).toFixed(1)));
+    var out = top.lastChild;
 
     var input = el("input");
     input.type = "range";
+    input.className = "range-track range-thumb";
     input.min = "0";
     input.max = "3";
     input.step = "0.1";
     input.value = String(state.weights[f.key]);
     input.setAttribute("aria-label", f.label + " weight");
+
+    function paint() { input.style.setProperty("--fill", (input.value / 3) * 100 + "%"); }
+    paint();
+
     input.addEventListener("input", function () {
       state.weights[f.key] = Number(input.value);
       out.textContent = Number(input.value).toFixed(1);
+      paint();
       render();
     });
     input.addEventListener("change", save);
 
     wrap.append(top, input);
-    weightSliders[f.key] = { input: input, out: out };
+    weightSliders[f.key] = { input: input, out: out, paint: paint };
     weightBox.append(wrap);
   });
 
   document.getElementById("reset-weights").addEventListener("click", function () {
     state.weights = defaultWeights();
     FACTORS.forEach(function (f) {
-      weightSliders[f.key].input.value = "1";
-      weightSliders[f.key].out.textContent = "1.0";
+      var s = weightSliders[f.key];
+      s.input.value = "1";
+      s.out.textContent = "1.0";
+      s.paint();
     });
     save();
     render();
@@ -373,12 +726,12 @@
 
   // --- List -----------------------------------------------------------------
 
-  function summaryLine(item) {
-    var line = el("span", "summary-line");
+  function chips(item) {
+    var row = el("div", "chips");
     FACTORS.forEach(function (f) {
-      line.append(el("span", f.inverse ? "inv" : null, f.label + " " + item[f.key]));
+      row.append(el("span", "badge" + (f.inverse ? " badge-inverse" : ""), f.label + " " + item[f.key]));
     });
-    return line;
+    return row;
   }
 
   function render() {
@@ -388,34 +741,51 @@
 
     rows.forEach(function (item, index) {
       var value = score(item);
-      var li = el("li", "card item" + (item.bought ? " bought" : ""));
+      var li = el("li", "card item" + (item.bought ? " item-bought" : ""));
 
-      li.append(el("div", "rank", String(index + 1)));
+      var rank = el("div", "rank" + (index === 0 && !item.bought ? " rank-lead" : ""), String(index + 1));
+      li.append(rank);
 
-      var body = el("div", "body");
-      var head = el("div", "head");
-      head.append(el("span", "name", item.name));
-      if (item.price) head.append(el("span", "price", money.format(item.price)));
-      var scoreEl = el("span", "score", value.toFixed(1));
+      var body = el("div", "item-body");
+
+      var head = el("div", "item-head");
+      head.append(el("span", "item-name", item.name));
+      if (item.price) head.append(el("span", "item-price", money.format(item.price)));
+      var scoreEl = el("span", "item-score");
       scoreEl.title = "Weighted score out of 10";
+      scoreEl.append(el("span", null, value.toFixed(1)), el("span", "of", "/10"));
       head.append(scoreEl);
       body.append(head);
 
-      var bar = el("div", "bar");
-      var fill = el("span");
-      fill.style.width = (value * 10) + "%";
-      bar.append(fill);
-      body.append(bar);
+      var meter = el("div", "meter");
+      var fill = el("div", "meter-fill");
+      // Slid into place rather than resized. Only the first paint animates —
+      // on a re-rank the bars are already where they belong.
+      if (firstPaint) {
+        fill.style.translate = "-100% 0";
+        fill.classList.add("meter-animate");
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () { fill.style.translate = (value * 10 - 100) + "% 0"; });
+        });
+      } else {
+        fill.style.translate = (value * 10 - 100) + "% 0";
+      }
+      meter.append(fill);
+      body.append(meter);
 
-      var tune = el("details", "tune");
+      var tune = el("details");
       var summary = el("summary");
-      summary.append(summaryLine(item));
+      var trigger = el("span", "disclosure");
+      trigger.append(chips(item));
+      summary.append(trigger);
       tune.append(summary);
 
-      var grid = el("div", "sliders");
+      var grid = el("div", "factor-grid");
+      grid.style.marginTop = "0.875rem";
       FACTORS.forEach(function (f) {
         var s = buildSlider(f, item[f.key], item.name, function (v) { item[f.key] = v; });
-        // Re-rank on release rather than mid-drag, so the card doesn't move underneath.
+        // Re-rank on release rather than mid-drag, so the card doesn't move
+        // out from under the thumb.
         s.input.addEventListener("change", function () { save(); render(); });
         grid.append(s.wrap);
       });
@@ -423,15 +793,15 @@
       body.append(tune);
       li.append(body);
 
-      var actions = el("div", "actions");
-      var buy = el("button", "icon", item.bought ? "Undo" : "Bought");
+      var actions = el("div", "item-actions");
+      var buy = el("button", "btn btn-xs", item.bought ? "Undo" : "Bought");
       buy.type = "button";
       buy.addEventListener("click", function () {
         item.bought = !item.bought;
         save();
         render();
       });
-      var del = el("button", "icon", "Delete");
+      var del = el("button", "btn btn-xs btn-danger", "Delete");
       del.type = "button";
       del.addEventListener("click", function () {
         state.items = state.items.filter(function (i) { return i.id !== item.id; });
@@ -444,6 +814,7 @@
       list.append(li);
     });
 
+    firstPaint = false;
     document.getElementById("empty").hidden = rows.length > 0;
 
     var pending = state.items.filter(function (i) { return !i.bought; }).length;
