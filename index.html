@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rank2Buy</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --surface-2: #f0f2f5;
+    --border: #dfe3e8;
+    --text: #16191d;
+    --muted: #666e7a;
+    --accent: #3b6ef5;
+    --accent-soft: #e7edfe;
+    --good: #16915c;
+    --warn: #d97706;
+    --danger: #d3452f;
+    --radius: 10px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171b;
+      --surface: #1c2026;
+      --surface-2: #23282f;
+      --border: #2f353d;
+      --text: #e9ecef;
+      --muted: #98a1ad;
+      --accent: #6f95ff;
+      --accent-soft: #22304f;
+      --good: #3fbf88;
+      --warn: #e6a23c;
+      --danger: #ef6b53;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; padding: 24px 16px 64px; }
+  header { margin-bottom: 20px; }
+  h1 { font-size: 24px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  input[type=text], input[type=number] {
+    width: 100%;
+    padding: 9px 10px;
+    font: inherit;
+    color: var(--text);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  input:focus-visible, button:focus-visible, input[type=range]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .row > * { flex: 1 1 160px; min-width: 0; }
+
+  .sliders { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 14px; }
+  .slider .top { display: flex; justify-content: space-between; align-items: baseline; }
+  .slider .val { font-variant-numeric: tabular-nums; font-weight: 600; font-size: 13px; color: var(--text); }
+  input[type=range] { width: 100%; accent-color: var(--accent); margin: 2px 0 0; }
+  .hint { font-size: 11px; color: var(--muted); }
+
+  button {
+    font: inherit;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text);
+    padding: 9px 14px;
+    cursor: pointer;
+  }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  button.icon { padding: 4px 8px; font-size: 12px; color: var(--muted); }
+  button.icon:hover { color: var(--danger); }
+
+  .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+  .toolbar .spacer { flex: 1; }
+  .count { color: var(--muted); font-size: 13px; }
+
+  ol.items { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .item { display: flex; gap: 14px; align-items: flex-start; }
+  .item.bought { opacity: 0.5; }
+  .item.bought .name { text-decoration: line-through; }
+  .rank {
+    flex: 0 0 auto; width: 34px; height: 34px; border-radius: 50%;
+    background: var(--accent-soft); color: var(--accent);
+    display: grid; place-items: center; font-weight: 700; font-size: 14px;
+  }
+  .body { flex: 1; min-width: 0; }
+  .head { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .name { font-weight: 600; word-break: break-word; }
+  .price { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .score { margin-left: auto; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .bar { height: 5px; border-radius: 3px; background: var(--surface-2); margin: 8px 0; overflow: hidden; }
+  .bar span { display: block; height: 100%; background: var(--accent); }
+  .actions { display: flex; gap: 6px; }
+  details.tune summary {
+    cursor: pointer; font-size: 12px; color: var(--muted);
+    list-style: none; user-select: none;
+  }
+  details.tune summary::-webkit-details-marker { display: none; }
+  details.tune summary::before { content: "▸ "; }
+  details.tune[open] summary::before { content: "▾ "; }
+  .empty { text-align: center; color: var(--muted); padding: 28px 12px; }
+  .weights { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Rank2Buy</h1>
+    <p class="sub">List what you want to buy, score each on urgency, need and impact, and see what to buy first.</p>
+  </header>
+
+  <form class="card" id="add-form">
+    <div class="row">
+      <div style="flex: 2 1 260px;">
+        <label for="name">What do you want to buy?</label>
+        <input type="text" id="name" placeholder="e.g. Standing desk" autocomplete="off" required>
+      </div>
+      <div>
+        <label for="price">Price (optional)</label>
+        <input type="number" id="price" placeholder="0" min="0" step="0.01">
+      </div>
+    </div>
+
+    <div class="sliders">
+      <div class="slider">
+        <div class="top"><label for="urgency">Urgency</label><span class="val" id="urgency-val">5</span></div>
+        <input type="range" id="urgency" min="1" max="10" value="5">
+        <div class="hint">How soon do I need it?</div>
+      </div>
+      <div class="slider">
+        <div class="top"><label for="need">Need</label><span class="val" id="need-val">5</span></div>
+        <input type="range" id="need" min="1" max="10" value="5">
+        <div class="hint">Necessity vs. nice-to-have.</div>
+      </div>
+      <div class="slider">
+        <div class="top"><label for="impact">Impact</label><span class="val" id="impact-val">5</span></div>
+        <input type="range" id="impact" min="1" max="10" value="5">
+        <div class="hint">How much will it change things?</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 14px;">
+      <button type="submit" class="primary">Add to list</button>
+    </div>
+  </form>
+
+  <div class="toolbar">
+    <span class="count" id="count"></span>
+    <span class="spacer"></span>
+    <button type="button" id="toggle-bought">Show bought</button>
+    <button type="button" id="export">Export</button>
+    <button type="button" id="clear">Clear all</button>
+  </div>
+
+  <details class="card tune" id="weights-box">
+    <summary>Weighting — how much each factor counts</summary>
+    <div class="weights" style="margin-top: 12px;">
+      <div class="slider">
+        <div class="top"><label for="w-urgency">Urgency weight</label><span class="val" id="w-urgency-val">1.0</span></div>
+        <input type="range" id="w-urgency" min="0" max="3" step="0.1" value="1">
+      </div>
+      <div class="slider">
+        <div class="top"><label for="w-need">Need weight</label><span class="val" id="w-need-val">1.0</span></div>
+        <input type="range" id="w-need" min="0" max="3" step="0.1" value="1">
+      </div>
+      <div class="slider">
+        <div class="top"><label for="w-impact">Impact weight</label><span class="val" id="w-impact-val">1.0</span></div>
+        <input type="range" id="w-impact" min="0" max="3" step="0.1" value="1">
+      </div>
+    </div>
+    <p class="hint" style="margin-bottom: 0;">Scores are a weighted average out of 10, so changing weights re-ranks the list.</p>
+  </details>
+
+  <ol class="items" id="list"></ol>
+  <p class="empty" id="empty">Nothing on the list yet. Add the first thing above.</p>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STORE = "rank2buy.v1";
+  var FACTORS = ["urgency", "need", "impact"];
+  var state = load();
+
+  function load() {
+    var fallback = { items: [], weights: { urgency: 1, need: 1, impact: 1 }, showBought: false };
+    try {
+      var raw = localStorage.getItem(STORE);
+      if (!raw) return fallback;
+      var saved = JSON.parse(raw);
+      return {
+        items: Array.isArray(saved.items) ? saved.items : [],
+        weights: Object.assign({}, fallback.weights, saved.weights),
+        showBought: !!saved.showBought
+      };
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(STORE, JSON.stringify(state));
+    } catch (e) {
+      /* storage unavailable (private mode, blocked cookies) — the app still works for this session */
+    }
+  }
+
+  function score(item) {
+    var w = state.weights;
+    var total = w.urgency + w.need + w.impact;
+    if (total === 0) return 0;
+    return (item.urgency * w.urgency + item.need * w.need + item.impact * w.impact) / total;
+  }
+
+  function ranked() {
+    return state.items
+      .filter(function (i) { return state.showBought || !i.bought; })
+      .slice()
+      .sort(function (a, b) {
+        if (a.bought !== b.bought) return a.bought ? 1 : -1;
+        var diff = score(b) - score(a);
+        return diff !== 0 ? diff : a.created - b.created;
+      });
+  }
+
+  var money = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
+
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function factorRow(item, factor) {
+    var wrap = el("div", "slider");
+    var top = el("div", "top");
+    var label = el("label", null, factor[0].toUpperCase() + factor.slice(1));
+    var val = el("span", "val", String(item[factor]));
+    top.append(label, val);
+
+    var input = el("input");
+    input.type = "range";
+    input.min = "1";
+    input.max = "10";
+    input.value = String(item[factor]);
+    input.setAttribute("aria-label", factor + " for " + item.name);
+    input.addEventListener("input", function () {
+      item[factor] = Number(input.value);
+      val.textContent = input.value;
+    });
+    input.addEventListener("change", function () { save(); render(); });
+
+    wrap.append(top, input);
+    return wrap;
+  }
+
+  function render() {
+    var list = document.getElementById("list");
+    var rows = ranked();
+    list.textContent = "";
+
+    rows.forEach(function (item, index) {
+      var value = score(item);
+      var li = el("li", "card item" + (item.bought ? " bought" : ""));
+
+      li.append(el("div", "rank", String(index + 1)));
+
+      var body = el("div", "body");
+      var head = el("div", "head");
+      head.append(el("span", "name", item.name));
+      if (item.price) head.append(el("span", "price", money.format(item.price)));
+      var scoreEl = el("span", "score", value.toFixed(1));
+      scoreEl.title = "Weighted score out of 10";
+      head.append(scoreEl);
+      body.append(head);
+
+      var bar = el("div", "bar");
+      var fill = el("span");
+      fill.style.width = (value * 10) + "%";
+      bar.append(fill);
+      body.append(bar);
+
+      var summaryText = FACTORS.map(function (f) {
+        return f[0].toUpperCase() + f.slice(1) + " " + item[f];
+      }).join(" · ");
+
+      var tune = el("details", "tune");
+      tune.append(el("summary", null, summaryText));
+      var grid = el("div", "sliders");
+      FACTORS.forEach(function (f) { grid.append(factorRow(item, f)); });
+      tune.append(grid);
+      body.append(tune);
+      li.append(body);
+
+      var actions = el("div", "actions");
+      var buy = el("button", "icon", item.bought ? "Undo" : "Bought");
+      buy.type = "button";
+      buy.addEventListener("click", function () {
+        item.bought = !item.bought;
+        save();
+        render();
+      });
+      var del = el("button", "icon", "Delete");
+      del.type = "button";
+      del.addEventListener("click", function () {
+        state.items = state.items.filter(function (i) { return i.id !== item.id; });
+        save();
+        render();
+      });
+      actions.append(buy, del);
+      li.append(actions);
+
+      list.append(li);
+    });
+
+    document.getElementById("empty").hidden = rows.length > 0;
+
+    var pending = state.items.filter(function (i) { return !i.bought; }).length;
+    var bought = state.items.length - pending;
+    document.getElementById("count").textContent =
+      pending + (pending === 1 ? " item" : " items") + " to buy" +
+      (bought ? " · " + bought + " bought" : "");
+    document.getElementById("toggle-bought").textContent =
+      state.showBought ? "Hide bought" : "Show bought";
+  }
+
+  // Live value labels on the add form and the weight sliders.
+  FACTORS.forEach(function (f) {
+    var input = document.getElementById(f);
+    var out = document.getElementById(f + "-val");
+    input.addEventListener("input", function () { out.textContent = input.value; });
+
+    var weight = document.getElementById("w-" + f);
+    var weightOut = document.getElementById("w-" + f + "-val");
+    weight.value = String(state.weights[f]);
+    weightOut.textContent = Number(state.weights[f]).toFixed(1);
+    weight.addEventListener("input", function () {
+      state.weights[f] = Number(weight.value);
+      weightOut.textContent = Number(weight.value).toFixed(1);
+      render();
+    });
+    weight.addEventListener("change", save);
+  });
+
+  document.getElementById("add-form").addEventListener("submit", function (event) {
+    event.preventDefault();
+    var nameInput = document.getElementById("name");
+    var name = nameInput.value.trim();
+    if (!name) return;
+
+    var priceInput = document.getElementById("price");
+    state.items.push({
+      id: (Date.now().toString(36) + Math.random().toString(36).slice(2, 8)),
+      name: name,
+      price: priceInput.value ? Number(priceInput.value) : null,
+      urgency: Number(document.getElementById("urgency").value),
+      need: Number(document.getElementById("need").value),
+      impact: Number(document.getElementById("impact").value),
+      bought: false,
+      created: Date.now()
+    });
+
+    nameInput.value = "";
+    priceInput.value = "";
+    FACTORS.forEach(function (f) {
+      document.getElementById(f).value = "5";
+      document.getElementById(f + "-val").textContent = "5";
+    });
+    nameInput.focus();
+    save();
+    render();
+  });
+
+  document.getElementById("toggle-bought").addEventListener("click", function () {
+    state.showBought = !state.showBought;
+    save();
+    render();
+  });
+
+  document.getElementById("clear").addEventListener("click", function () {
+    if (!state.items.length) return;
+    if (!confirm("Delete all " + state.items.length + " items?")) return;
+    state.items = [];
+    save();
+    render();
+  });
+
+  document.getElementById("export").addEventListener("click", function () {
+    var lines = ranked().map(function (item, i) {
+      return (i + 1) + ". " + item.name +
+        " — " + score(item).toFixed(1) + "/10" +
+        (item.price ? " — " + money.format(item.price) : "") +
+        " (urgency " + item.urgency + ", need " + item.need + ", impact " + item.impact + ")";
+    });
+    var text = lines.length ? lines.join("\n") : "Nothing on the list.";
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () {
+        var button = document.getElementById("export");
+        button.textContent = "Copied";
+        setTimeout(function () { button.textContent = "Export"; }, 1500);
+      }, function () { window.prompt("Copy your list:", text); });
+    } else {
+      window.prompt("Copy your list:", text);
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
