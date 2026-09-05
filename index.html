@@ -506,7 +506,7 @@ details[open] > summary .disclosure::before { rotate: 45deg; }
     <summary><span class="label disclosure">Weighting</span></summary>
     <div class="weight-grid" id="weight-sliders"></div>
     <p class="slider-hint">
-      Scores are a weighted average out of 10, so changing a weight re-ranks the list.
+      Scores are a weighted average out of 7, so changing a weight re-ranks the list.
       Cost runs in reverse — cheap pushes an item up, which is why its track is hatched.
     </p>
     <div><button type="button" class="btn btn-xs" id="reset-weights">Reset weights</button></div>
@@ -534,10 +534,10 @@ details[open] > summary .disclosure::before { rotate: 45deg; }
     { key: "need",    label: "Need",    hint: "Necessity vs. nice-to-have." },
     { key: "impact",  label: "Impact",  hint: "How much will it change things?" },
     { key: "want",    label: "Want",    hint: "How much do I just want it?" },
-    { key: "cost",    label: "Cost",    hint: "1 cheap, 10 expensive. Counts against.", inverse: true }
+    { key: "cost",    label: "Cost",    hint: "1 cheap, 7 expensive. Counts against.", inverse: true }
   ];
-  var MAX = 10;
-  var DEFAULT = 5;
+  var MAX = 7;
+  var DEFAULT = 4;
 
   var state = load();
   var firstPaint = true;
@@ -559,11 +559,15 @@ details[open] > summary .disclosure::before { rotate: 45deg; }
       return fallback;
     }
 
-    // Lists saved before cost and want existed are filled in at the neutral 5.
+    // The scale the saved values are on. Absent means the original 1-10 —
+    // the field only exists from the move to 1-7 onward.
+    var from = Number(saved.scale) || 10;
+
     var items = (Array.isArray(saved.items) ? saved.items : []).map(function (item) {
       FACTORS.forEach(function (f) {
         var v = Number(item[f.key]);
-        item[f.key] = (v >= 1 && v <= MAX) ? v : DEFAULT;
+        // Lists saved before cost and want existed are filled in at neutral.
+        item[f.key] = (v >= 1 && v <= from) ? rescale(v, from) : DEFAULT;
       });
       return item;
     });
@@ -575,8 +579,18 @@ details[open] > summary .disclosure::before { rotate: 45deg; }
     };
   }
 
+  /* A value saved on a `from`-point scale, in its place on the current one:
+     the ends stay the ends and the middle stays the middle, so a top-of-scale
+     10 comes back as a 7 rather than being clamped down to the default. */
+  function rescale(value, from) {
+    if (from === MAX) return value;
+    var moved = Math.round(1 + ((value - 1) * (MAX - 1)) / (from - 1));
+    return Math.min(MAX, Math.max(1, moved));
+  }
+
   function save() {
     try {
+      state.scale = MAX;
       localStorage.setItem(STORE, JSON.stringify(state));
     } catch (e) {
       /* storage unavailable (private mode, blocked cookies) — the app still works for this session */
@@ -611,6 +625,9 @@ details[open] > summary .disclosure::before { rotate: 45deg; }
   }
 
   var money = new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 });
+
+  /* A score as a percentage of the scale, for the meters. */
+  function pct(value) { return (value / MAX) * 100; }
 
   function el(tag, className, text) {
     var node = document.createElement(tag);
@@ -752,8 +769,8 @@ details[open] > summary .disclosure::before { rotate: 45deg; }
       head.append(el("span", "item-name", item.name));
       if (item.price) head.append(el("span", "item-price", money.format(item.price)));
       var scoreEl = el("span", "item-score");
-      scoreEl.title = "Weighted score out of 10";
-      scoreEl.append(el("span", null, value.toFixed(1)), el("span", "of", "/10"));
+      scoreEl.title = "Weighted score out of " + MAX;
+      scoreEl.append(el("span", null, value.toFixed(1)), el("span", "of", "/" + MAX));
       head.append(scoreEl);
       body.append(head);
 
@@ -765,10 +782,10 @@ details[open] > summary .disclosure::before { rotate: 45deg; }
         fill.style.translate = "-100% 0";
         fill.classList.add("meter-animate");
         requestAnimationFrame(function () {
-          requestAnimationFrame(function () { fill.style.translate = (value * 10 - 100) + "% 0"; });
+          requestAnimationFrame(function () { fill.style.translate = (pct(value) - 100) + "% 0"; });
         });
       } else {
-        fill.style.translate = (value * 10 - 100) + "% 0";
+        fill.style.translate = (pct(value) - 100) + "% 0";
       }
       meter.append(fill);
       body.append(meter);
@@ -873,7 +890,7 @@ details[open] > summary .disclosure::before { rotate: 45deg; }
         return f.label.toLowerCase() + " " + item[f.key];
       }).join(", ");
       return (i + 1) + ". " + item.name +
-        " — " + score(item).toFixed(1) + "/10" +
+        " — " + score(item).toFixed(1) + "/" + MAX +
         (item.price ? " — " + money.format(item.price) : "") +
         " (" + scores + ")";
     });
